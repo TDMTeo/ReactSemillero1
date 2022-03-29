@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import './App.css';
 import { TareaService } from './service/TareaService';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
@@ -7,17 +6,23 @@ import { Panel } from 'primereact/panel';
 import { Menubar } from 'primereact/menubar';
 import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
-import { ListBox } from 'primereact/listbox';
+import { PersonaService } from './service/PersonaService';
+import { RolService } from './service/RolService';
+import { Password } from 'primereact/password';
+import { Dropdown } from 'primereact/dropdown';
+import { Button } from 'primereact/button';
 
+import './App.css';
 import 'primereact/resources/themes/lara-light-indigo/theme.css'
 import 'primereact/resources/primereact.min.css'
 import 'primeicons/primeicons.css'
-import { PersonaService } from './service/PersonaService';
-import { RolService } from './service/RolService';
 
 export default class App extends Component{
   constructor(){
     super();
+    this.TareaService = new TareaService();
+    this.RolService = new RolService();
+    this.PersonaService = new PersonaService();
     this.state = {};
     this.items = [
       {
@@ -26,18 +31,19 @@ export default class App extends Component{
         command: () => {this.register()}
       }
     ];
-    this.TareaService = new TareaService();
-    this.RolService = new RolService();
+    this.footer=(
+      <div>
+        <Button label="Guardar" icon="pi pi-check" onClick={this.save}/>
+      </div>
+    );
+
   }
 
   componentDidMount(){
-    const citySelectItems = [
-      {label: 'New York', value: 'NY'},
-      {label: 'Rome', value: 'RM'},
-      {label: 'London', value: 'LDN'},
-      {label: 'Istanbul', value: 'IST'},
-      {label: 'Paris', value: 'PRS'}
-  ];
+    this.roles = [
+      {label: 'Oferente', value: '1'},
+      {label: 'Hacedor', value: '2'}
+    ];
     this.TareaService.getAll().then(data => this.setState({tarea: data}))
     this.setState({
       visible : false,
@@ -60,6 +66,12 @@ export default class App extends Component{
     });
   }
 
+  save(){
+    this.PersonaService.save(this.state.persona).then(data => {
+      console.log(data);
+    })
+  }
+
   render(){
     return(
       <div style={{width:'80%',marginTop:'20px',margin:'0 auto'}}>
@@ -71,54 +83,10 @@ export default class App extends Component{
             <Column field="tarDescripcion" header="Servicio"></Column>
           </DataTable>
         </Panel>
-        <Dialog header='Registro De Usuario' visible={this.state.visible} style={{width: '60%'}} modal={true} onHide={() => this.setState({visible:false})}>
-          <br/>
+        <Dialog header='Registro De Usuario' visible={this.state.visible} style={{width: '40%'}} footer={this.footer} modal={true} onHide={() => this.setState({visible:false})}>
+        <br/>
           <span className='p-float-label'>
-            <InputText value={this.state.value} id="perPriNombre" onChange={(e) => this.setState(prevState => {
-              let persona = Object.assign({}, prevState.persona);
-              persona.perPriNombre = e.target.value
-
-              return { persona };
-            })} />
-            <label htmlFor='perPriNombre'>Primer Nombre:</label>
-          </span>
-
-          <br/>
-          <span className='p-float-label'>
-            <InputText value={this.state.value} id="perSegNombre" onChange={(e) => this.setState(prevState => {
-              let persona = Object.assign({}, prevState.persona);
-              persona.perSegNombre = e.target.value
-
-              return { persona };
-            })} />
-            <label htmlFor='perSegNombre'>Segundo Nombre:</label>
-          </span>
-
-          <br/>
-          <span className='p-float-label'>
-            <InputText value={this.state.value} id="perPriApellido" onChange={(e) => this.setState(prevState => {
-              let persona = Object.assign({}, prevState.persona);
-              persona.perPriApellido = e.target.value
-
-              return { persona };
-            })} />
-            <label htmlFor='perPriApellido'>Primer Apellido:</label>
-          </span>
-
-          <br/>
-          <span className='p-float-label'>
-            <InputText value={this.state.value} id="perSegApellido" onChange={(e) => this.setState(prevState => {
-              let persona = Object.assign({}, prevState.persona);
-              persona.perSegApellido = e.target.value
-
-              return { persona };
-            })} />
-            <label htmlFor='perSegApellido'>Segundo Apellido:</label>
-          </span>
-
-          <br/>
-          <span className='p-float-label'>
-            <InputText value={this.state.value} id="perCorreo" onChange={(e) => this.setState(prevState => {
+            <InputText style={{width : '100%'}} value={this.state.value} id="perCorreo" onChange={(e) => this.setState(prevState => {
               let persona = Object.assign({}, prevState.persona);
               persona.perCorreo = e.target.value
 
@@ -129,7 +97,7 @@ export default class App extends Component{
 
           <br/>
           <span className='p-float-label'>
-            <InputText value={this.state.value} id="perContra" onChange={(e) => this.setState(prevState => {
+            <Password style={{width : '100%'}} value={this.state.value} id="perContra" onChange={(e) => this.setState(prevState => {
               let persona = Object.assign({}, prevState.persona);
               persona.perContra = e.target.value
 
@@ -138,6 +106,60 @@ export default class App extends Component{
             <label htmlFor='perContra'>Password:</label>
           </span>
 
+
+          <br/>
+          <span className='p-float-label'>
+            <InputText style={{width : '100%'}} value={this.state.value} id="perPriNombre" onChange={(e) => this.setState(prevState => {
+              let persona = Object.assign({}, prevState.persona);
+              persona.perPriNombre = e.target.value
+
+              return { persona };
+            })} />
+            <label htmlFor='perPriNombre'>Primer Nombre:</label>
+          </span>
+          <br/>
+          <span className='p-float-label'>
+            <InputText style={{width : '100%'}} value={this.state.value} id="perSegNombre" onChange={(e) => this.setState(prevState => {
+              let persona = Object.assign({}, prevState.persona);
+              persona.perSegNombre = e.target.value
+
+              return { persona };
+            })} />
+            <label htmlFor='perSegNombre'>Segundo Nombre:</label>
+          </span>
+
+          <br/>
+          <span className='p-float-label'>
+            <InputText style={{width : '100%'}} value={this.state.value} id="perPriApellido" onChange={(e) => this.setState(prevState => {
+              let persona = Object.assign({}, prevState.persona);
+              persona.perPriApellido = e.target.value
+
+              return { persona };
+            })} />
+            <label htmlFor='perPriApellido'>Primer Apellido:</label>
+          </span>
+
+          <br/>
+          <span className='p-float-label'>
+            <InputText style={{width : '100%'}} value={this.state.value} id="perSegApellido" onChange={(e) => this.setState(prevState => {
+              let persona = Object.assign({}, prevState.persona);
+              persona.perSegApellido = e.target.value
+
+              return { persona };
+            })} />
+            <label htmlFor='perSegApellido'>Segundo Apellido:</label>
+          </span>
+
+
+          <br/>
+          <span className='p-float-label'>
+            <Dropdown style={{width : '100%'}} value={this.state.value} options={this.roles} id="perRol" onChange={(e) => this.setState(prevState => {
+              let persona = Object.assign({}, prevState.persona);
+              persona.perRol = e.target.value
+
+              return { persona };
+            })} placeholder="Rol"/>
+          </span>
 
         </Dialog>
       </div>
